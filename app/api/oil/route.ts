@@ -78,7 +78,7 @@ function parseStooqCsv(csv: string) {
       start: null,
       end: null
     },
-    source: "Stooq (สำรองเมื่อ Yahoo Finance จำกัดคำขอ)"
+    source: "Stooq (fallback when Yahoo Finance rate-limits requests)"
   };
 }
 
@@ -123,7 +123,7 @@ export async function GET() {
       }
 
       return NextResponse.json(
-        { error: "ไม่สามารถเชื่อมต่อแหล่งข้อมูลราคาได้ในตอนนี้" },
+        { error: "Unable to connect to price data sources right now" },
         { status: response.status }
       );
     }
@@ -137,7 +137,7 @@ export async function GET() {
         {
           error:
             data.chart?.error?.description ??
-            "ไม่พบข้อมูลราคาน้ำมันจาก Yahoo Finance"
+            "No oil price data was returned by Yahoo Finance"
         },
         { status: 502 }
       );
@@ -150,7 +150,7 @@ export async function GET() {
 
     if (typeof price !== "number") {
       return NextResponse.json(
-        { error: "ข้อมูลราคาล่าสุดยังไม่พร้อมใช้งาน" },
+        { error: "The latest price is not available yet" },
         { status: 502 }
       );
     }
@@ -212,7 +212,7 @@ export async function GET() {
     }
 
     return NextResponse.json(
-      { error: "เกิดข้อผิดพลาดระหว่างดึงข้อมูลราคา" },
+      { error: "An error occurred while fetching price data" },
       { status: 500 }
     );
   }

@@ -18,12 +18,12 @@ type OilQuote = {
 
 type LoadState = "idle" | "loading" | "ready" | "error";
 
-const numberFormatter = new Intl.NumberFormat("th-TH", {
+const numberFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2
 });
 
-const timeFormatter = new Intl.DateTimeFormat("th-TH", {
+const timeFormatter = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
   timeStyle: "medium",
   timeZone: "Asia/Bangkok"
@@ -51,14 +51,16 @@ export default function OilDashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error ?? "โหลดข้อมูลไม่สำเร็จ");
+        throw new Error(data.error ?? "Unable to load price data");
       }
 
       setQuote(data);
       setLastChecked(new Date());
       setStatus("ready");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "โหลดข้อมูลไม่สำเร็จ");
+      setError(
+        cause instanceof Error ? cause.message : "Unable to load price data"
+      );
       setStatus("error");
     }
   }
@@ -79,25 +81,35 @@ export default function OilDashboard() {
           <div className="brand-mark">CL</div>
           <div>
             <p className="eyebrow">Yahoo Finance • WTI Futures</p>
-            <h1 id="page-title">ราคาน้ำมันดิบ WTI</h1>
+            <h1 id="page-title">WTI Crude Oil Price</h1>
           </div>
         </div>
 
         <div className="hero-grid">
           <div className="price-zone">
-            <p className="label">ราคาล่าสุด</p>
+            <p className="label">Latest price</p>
             <div className="price-row">
               <span className={isLoadingFirst ? "price skeleton" : "price"}>
-                {quote ? numberFormatter.format(quote.price) : "กำลังโหลด"}
+                {quote ? numberFormatter.format(quote.price) : "Loading"}
               </span>
-              {quote ? <span className="currency">{quote.currency}/บาร์เรล</span> : null}
+              {quote ? (
+                <span className="currency">{quote.currency}/barrel</span>
+              ) : null}
             </div>
 
             {quote ? (
               <div className={`change-pill ${trend}`}>
-                <span>{trend === "up" ? "ขึ้น" : trend === "down" ? "ลง" : "ทรงตัว"}</span>
+                <span>
+                  {trend === "up"
+                    ? "Up"
+                    : trend === "down"
+                      ? "Down"
+                      : "Flat"}
+                </span>
                 <strong>
-                  {quote.change != null ? numberFormatter.format(Math.abs(quote.change)) : "-"}
+                  {quote.change != null
+                    ? numberFormatter.format(Math.abs(quote.change))
+                    : "-"}
                   {quote.changePercent != null
                     ? ` (${numberFormatter.format(Math.abs(quote.changePercent))}%)`
                     : ""}
@@ -109,7 +121,11 @@ export default function OilDashboard() {
           <div className="status-panel">
             <div>
               <span className={`pulse ${status}`} />
-              <p>{status === "error" ? "มีปัญหาในการอัปเดต" : "อัปเดตอัตโนมัติทุก 60 วินาที"}</p>
+              <p>
+                {status === "error"
+                  ? "Update failed"
+                  : "Auto-updates every 60 seconds"}
+              </p>
             </div>
             <button
               className="refresh-button"
@@ -117,7 +133,7 @@ export default function OilDashboard() {
               onClick={loadQuote}
               disabled={status === "loading"}
             >
-              {status === "loading" ? "กำลังอัปเดต" : "รีเฟรช"}
+              {status === "loading" ? "Updating" : "Refresh"}
             </button>
           </div>
         </div>
@@ -126,15 +142,15 @@ export default function OilDashboard() {
 
         <dl className="metric-grid">
           <div>
-            <dt>สัญลักษณ์</dt>
+            <dt>Symbol</dt>
             <dd>{quote?.symbol ?? "CL=F"}</dd>
           </div>
           <div>
-            <dt>ตลาด</dt>
+            <dt>Exchange</dt>
             <dd>{quote?.exchangeName ?? "NYMEX"}</dd>
           </div>
           <div>
-            <dt>ราคาปิดก่อนหน้า</dt>
+            <dt>Previous close</dt>
             <dd>
               {quote?.previousClose != null
                 ? numberFormatter.format(quote.previousClose)
@@ -142,15 +158,15 @@ export default function OilDashboard() {
             </dd>
           </div>
           <div>
-            <dt>เวลาราคาตลาด</dt>
+            <dt>Market time</dt>
             <dd>{marketTime ? timeFormatter.format(marketTime) : "-"}</dd>
           </div>
         </dl>
 
         <footer className="source-line">
-          <span>แหล่งข้อมูล: {quote?.source ?? "Yahoo Finance"}</span>
+          <span>Source: {quote?.source ?? "Yahoo Finance"}</span>
           <span>
-            ตรวจล่าสุด: {lastChecked ? timeFormatter.format(lastChecked) : "-"}
+            Last checked: {lastChecked ? timeFormatter.format(lastChecked) : "-"}
           </span>
         </footer>
       </section>

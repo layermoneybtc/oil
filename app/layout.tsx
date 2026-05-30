@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ราคาน้ำมันดิบ WTI สด",
-  description: "ติดตามราคาน้ำมันดิบ WTI Futures อ้างอิงข้อมูลจาก Yahoo Finance"
+  title: "Live WTI Crude Oil Price",
+  description: "Track WTI Crude Oil Futures prices using Yahoo Finance data"
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );
